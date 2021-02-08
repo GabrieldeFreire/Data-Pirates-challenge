@@ -7,7 +7,7 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem  
-import json  
+import os  
 
 
 class CorreiosPipeline:
@@ -15,24 +15,20 @@ class CorreiosPipeline:
         return item
 
 
-class JsonWriterPipeline:
+class DeleteJsonLinePipeline:
 
     def open_spider(self, spider):
-        self.file = open('output.jl', 'w')
+        try:
+            os.remove("output.jsonl")
+        except OSError as e:
+            pass
 
-    def close_spider(self, spider):
-        self.file.close()
-
-    def process_item(self, item, spider):
-        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
-        self.file.write(line)
-        return item
 
 class DuplicatesPipeline(object):  
    def __init__(self): 
       self.ids = set() 
 
-   def process_item(self, item, spider): 
+   def process_item(self, item, spider):
       if item['id'] in self.ids: 
          raise DropItem("Duplicate item found: %s" % item) 
       else: 

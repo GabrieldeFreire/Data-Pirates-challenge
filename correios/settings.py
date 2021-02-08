@@ -13,12 +13,18 @@ BOT_NAME = 'correios'
 SPIDER_MODULES = ['correios.spiders']
 NEWSPIDER_MODULE = 'correios.spiders'
 
-# Feed exports
+# Configure how Feed exports works
+FEED = {
+        'items.jsonlines': {
+            'format': 'jsonlines',
+            'overwrite':'True'
+            }
+        }
 FEED_URI = "output.jsonl"
-# FEED_EXPORTERS = {'jsonlines': 'scrapy.exporters.JsonLinesItemExporter'}
 FEED_FORMAT = 'jsonlines'
 FEED_EXPORT_ENCODING: 'UTF-8'
 FEED_OVERWRITE = 'True'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0'
 
@@ -69,9 +75,9 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-#    'correios.pipelines.CorreiosPipeline': 300,
+    'correios.pipelines.DeleteJsonLinePipeline':100,
     'correios.pipelines.DuplicatesPipeline':900,
-    # 'correios.pipelines.JsonWriterPipeline':950
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -89,9 +95,13 @@ ITEM_PIPELINES = {
 
 # Enable and configure HTTP caching (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-#HTTPCACHE_ENABLED = True
+HTTPCACHE_ENABLED = True
 #HTTPCACHE_EXPIRATION_SECS = 0
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 REDIRECT_ENABLED = True
+
+# Log
+LOGSTATS_INTERVAL = 1
+LOG_LEVEL = 'INFO'

@@ -3,6 +3,7 @@ import unicodedata
 import hashlib
 from itertools import zip_longest
 from six import string_types
+from correios.items import FaixaCepLoader, FaixaCepItem
 
 class FaixaCepSpider(scrapy.Spider):
     name = 'faixa_cep'
@@ -46,17 +47,10 @@ class FaixaCepSpider(scrapy.Spider):
         list_info = zip_longest(*list_info, fillvalue='')
 
         for fields in list_info:
-            localidade, faixa_de_cep, situacao, tipo_de_faixa = fields
-            id_ = hashlib.md5(''.join(fields).encode('utf-8'))
-            id_ = id_.hexdigest()
-
-            yield{'id':id_,
-                  'uf':uf,
-                  'localidade':localidade,
-                  'faixa_de_cep': faixa_de_cep,
-                  'situacao':situacao,
-                  'tipo_de_faixa':tipo_de_faixa
-            }
+            loader = FaixaCepLoader(FaixaCepItem())
+            fields_ = [uf] + list(fields)
+            loader.add_fields(fields_)
+            yield loader.load_item()
 
 
 
