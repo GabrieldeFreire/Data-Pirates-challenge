@@ -1,75 +1,65 @@
 import scrapy
 import unicodedata
-import hashlib
 from itertools import zip_longest
-from six import string_types
 from correios.items import FaixaCepLoader, FaixaCepItem
 
 class FaixaCepSpider(scrapy.Spider):
+
     name = 'faixa_cep'
     start_urls = ['http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaFaixaCEP.cfm']
 
     def parse(self, response):
+        '''Gets all states from correios site and iterate through it'''
+
         ufs_xpath = response.xpath('//select[@class="f1col"]//@value')
         ufs = ufs_xpath.getall()
-        ufs = list(filter(None, ufs))
-        ufs = ['SP']
-        # for uf in ufs:
-        #     formdata = {'UF': uf}
-        #     yield scrapy.FormRequest.from_response(response,formdata=formdata
-        #     callback=self.parse2)
-# from scrapy import FormRequest
-# fetch(FormRequest('http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaFaixaCEP.cfm', formdata={'UF': 'SP','qtdrow': '100','pagini': '1','pagfim': '100'}))
+        ufs = filter(None, ufs)
 
-        formdata = {'UF': 'SP',
-                    'qtdrow': '100',
-                    'pagini': '1',
-                    'pagfim': '100'
-                    }
-        yield scrapy.FormRequest.from_response(response, formdata=formdata,
-                                               cb_kwargs={'uf':formdata['UF']},
-                                               callback=self.pages_number)
-    def pages_number(self, response, uf):
+        for uf in ufs:
+            formdata={'UF': uf}
+            yield scrapy.FormRequest.from_response(response,formdata=formdata, cb_kwargs={'uf':uf},
+                                                   callback=self.pages_walk)
+
+    def pages_walk(self, response, uf):
+        '''Gets all pages states and iterate through it. If gets one page yield row info'''
+
         pages_xpath = response.xpath('//div[@class="ctrlcontent"]/text()').getall()
         pages_text = [item.strip() for item in pages_xpath if 'de' in item][0]
-        pages = int(pages_text.split()[-1])//100
+        pages = (int(pages_text.split()[-1])//100)+1
 
-        formdata = {'UF': 'SP',
-                    'qtdrow': '100',
-                    'pagini': '1',
-                    'pagfim': '100'
-            }
-        number_scaping_columns = 4
+        if pages == 1:
+            list_info = response.xpath('//table[@class="tmptabela"][last()]//tr//td//text()').getall()
+            list_info  = [item.strip() for item in list_info if isinstance(item, str)]
+            list_info = [iter(list_info)] * 4
+            list_info = zip_longest(*list_info, fillvalue='')
 
+            for fields in list_info:
+                row = FaixaCepLoader(FaixaCepItem())
+                fields_ = [uf] + list(fields)
+                row.add_fields(fields_)
+                yield row.load_item()
+        else:
+            for page in range(pages):
+                pagini = str(((page)*100)+1)
+                pagfim = str((page+1)*100)
+                formdata = {'UF': uf,
+                            'qtdrow': '100',
+                            'pagini': pagini,
+                            'pagfim': pagfim
+                            }
+                yield scrapy.FormRequest.from_response(response, formdata=formdata, cb_kwargs={'uf':uf},
+                                                       callback=self.extract_info)
+
+    def extract_info(self, response, uf):
+        '''Yield row info'''
+        
         list_info = response.xpath('//table[@class="tmptabela"][last()]//tr//td//text()').getall()
-        list_info  = [self.normalize(item.strip()) for item in list_info if isinstance(item, str)]
-        list_info = [iter(list_info)] * number_scaping_columns
+        list_info  = [item.strip() for item in list_info if isinstance(item, str)]
+        list_info = [iter(list_info)] * 4
         list_info = zip_longest(*list_info, fillvalue='')
 
         for fields in list_info:
-            loader = FaixaCepLoader(FaixaCepItem())
+            row = FaixaCepLoader(FaixaCepItem())
             fields_ = [uf] + list(fields)
-            loader.add_fields(fields_)
-            yield loader.load_item()
-
-
-
-        # yield scrapy.FormRequest.from_response(response, formdata=formdata, cb_kwargs={'uf':formdata['UF']},
-        #                                        callback=self.pages_info)
-
-        # def pages_info(self, response, uf):
-        #     list_info = response.xpath('//table[@class="tmptabela"][last()]//tr//td//text()').getall()
-
-        #     for index in range(0, len(list_info), 4):
-        #         yield{'uf':uf,
-        #               'localidade':list_info[index],
-        #               'faixa_de_cep':list_info[index+1],
-        #               'situacao':list_info[index+2],
-        #               'tipo_de_Faixa':list_info[index+3]
-        #         }
-    def normalize(self, string):
-        return unicodedata.normalize('NFD', string).encode('ascii', 'ignore').decode("utf-8")
-
-    # def grouper(iterable, n, fillvalue=None):
-    #     args = [iter(iterable)] * n
-    #     return zip_longest(*args, fillvalue=fillvalue)
+            row.add_fields(fields_)
+            yield row.load_item()

@@ -6,9 +6,13 @@
 import scrapy
 from scrapy.item import Item, Field
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import TakeFirst, MapCompose, Join
+from itemloaders.processors import TakeFirst
 
 import hashlib
+import unicodedata
+
+def normalize(string):
+    return unicodedata.normalize('NFD', string).encode('ascii', 'ignore').decode("utf-8")
 
 class FaixaCepLoader(ItemLoader):
     default_output_processor = TakeFirst()
@@ -18,12 +22,13 @@ class FaixaCepLoader(ItemLoader):
         id = id.hexdigest()
         self.add_value('id', id)
         self.add_value('uf', uf)
-        self.add_value('localidade', localidade)
-        self.add_value('faixa_de_cep', faixa_de_cep)
-        self.add_value('situacao', situacao)
-        self.add_value('tipo_de_faixa', tipo_de_faixa)
+        self.add_value('localidade', normalize(localidade))
+        self.add_value('faixa_de_cep', normalize(faixa_de_cep))
+        self.add_value('situacao', normalize(situacao))
+        self.add_value('tipo_de_faixa', normalize(tipo_de_faixa))
 
-
+    # def normalize(self, string):
+    #     return unicodedata.normalize('NFD', string).encode('ascii', 'ignore').decode("utf-8")
 class FaixaCepItem(Item):
     id = Field()
     uf = Field()
