@@ -7,13 +7,17 @@ class FaixaCepSpider(scrapy.Spider):
 
     name = 'faixa_cep'
     start_urls = ['http://www.buscacep.correios.com.br/sistemas/buscacep/resultadoBuscaFaixaCEP.cfm']
-
+    states = None
     def parse(self, response):
         '''Gets all states from correios site and iterate through it'''
 
-        ufs_xpath = response.xpath('//select[@class="f1col"]//@value')
-        ufs = ufs_xpath.getall()
-        ufs = filter(None, ufs)
+        if self.states:
+            ufs = self.states.split(',')
+            print(ufs)
+        else:
+            ufs_xpath = response.xpath('//select[@class="f1col"]//@value')
+            ufs = ufs_xpath.getall()
+            ufs = filter(None, ufs)
 
         for uf in ufs:
             formdata={'UF': uf}
@@ -52,7 +56,7 @@ class FaixaCepSpider(scrapy.Spider):
 
     def extract_info(self, response, uf):
         '''Yield row info'''
-        
+
         list_info = response.xpath('//table[@class="tmptabela"][last()]//tr//td//text()').getall()
         list_info  = [item.strip() for item in list_info if isinstance(item, str)]
         list_info = [iter(list_info)] * 4
