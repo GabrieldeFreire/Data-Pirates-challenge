@@ -1,4 +1,4 @@
-# Data-Pirates-challenge Solução
+# Solução Data-Pirates-challenge
 Solução para o desafio https://github.com/NeowayLabs/jobs/blob/master/datapirates/challengePirates.md
 
 ## Escopo do desafio
