@@ -1,4 +1,5 @@
 # Solução Data-Pirates-challenge
+
 Solução para o desafio https://github.com/NeowayLabs/jobs/blob/master/datapirates/challengePirates.md
 
 ## Escopo do desafio
@@ -16,7 +17,8 @@ Solução para o desafio https://github.com/NeowayLabs/jobs/blob/master/datapira
   
 
 ## Requisitos
-- Python 3.8.5;
+
+- Python 3.8;
 
 - Scrapy 2.4.1;
 
@@ -24,7 +26,26 @@ Solução para o desafio https://github.com/NeowayLabs/jobs/blob/master/datapira
 
 ## Instalar
 
-**Git:**
+### Criar virtualenv
+
+**Mac OS / Linux:**
+
+```bash
+pip install virtualenv
+virtualenv -p python3.8 venv
+source venv/bin/activate
+```
+
+**Windows:**
+
+```bash
+pip install virtualenv
+virtualenv -p python3.8 venv
+venv\Scripts\activate
+```
+
+### Git:
+
 ```bash
 git clone --depth=1 https://github.com/GabrieldeFreire/Data-Pirates-challenge.git
 cd Data-Pirates-challenge
@@ -41,8 +62,35 @@ pip install -r requirements.txt
 
 - `scrapy crawl faixa_cep -a states=SP,ES` - Raspa os estados São Paulo (SP) e Espírito Santo (ES).
 
-  
+**Estados:**
+- Acre (AC)
+- Alagoas (AL)
+- Amapá (AP)
+- Amazonas (AM)
+- Bahia (BA)
+- Ceará (CE)
+- Distrito Federal (DF)
+- Espírito Santo (ES)
+- Goiás (GO)
+- Maranhão (MA)
+- Mato Grosso (MT)
+- Mato Grosso do Sul (MS)
+- Minas Gerais (MG)
+- Pará (PA)
+- Paraíba (PB)
+- Paraná (PR)
+- Pernambuco (PE)
+- Piauí (PI)
+- Rio de Janeiro (RJ)
+- Rio Grande do Norte (RN)
+- Rio Grande do Sul (RS)
+- Rondônia (RO)
+- Roraima (RR)
+- Santa Catarina (SC)
+- São Paulo (SP)
+- Sergipe (SE)
+- Tocantins (TO)
+
 
 ## Saída
 - Arquivo output.jsonl
-

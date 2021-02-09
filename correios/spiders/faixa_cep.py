@@ -13,7 +13,6 @@ class FaixaCepSpider(scrapy.Spider):
 
         if self.states:
             ufs = self.states.split(',')
-            print(ufs)
         else:
             ufs_xpath = response.xpath('//select[@class="f1col"]//@value')
             ufs = ufs_xpath.getall()
