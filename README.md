@@ -12,7 +12,7 @@ Solução para o desafio https://github.com/NeowayLabs/jobs/blob/master/datapira
 
 - Cada registro deve conter **pelo menos** 3 campos: "localidade", "faixa de cep" and um "id" gerado. Não permita registros duplicados no arquivo de saída.
 
-- The output format must be [JSONL](http://jsonlines.org/)
+- O arquivo de saida deve ser [JSONL](http://jsonlines.org/)
 
   
 
